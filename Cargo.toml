@@ -1,11 +1,11 @@
 [package]
-name = "imgui-vulkano-task-renderer"
+name = "imgui-vulkano"
 version = "0.1.0-alpha"
 edition = "2021"
 description = "An imgui-rs renderer based on vulkano-taskgraph"
 readme= "README.md"
 license = "MIT"
-repository = "https://github.com/Matusson/imgui-vulkano-task-renderer"
+repository = "https://github.com/Matusson/imgui-vulkano"
 keywords = ["imgui", "vulkan", "vulkano", "gui", "taskgraph"]
 categories = ["gui", "graphics", "rendering"]
 

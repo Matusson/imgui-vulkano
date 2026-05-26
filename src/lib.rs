@@ -1,4 +1,4 @@
-//! # imgui-vulkano-task-renderer
+//! # imgui-vulkano
 //!
 //! An [imgui-rs](https://github.com/imgui-rs/imgui-rs) renderer based on [vulkano-taskgraph](https://github.com/vulkano-rs/vulkano).
 //!
@@ -63,7 +63,7 @@
 //!         ui.window("Hello world")
 //!             .size([300.0, 110.0], Condition::FirstUseEver)
 //!             .build(|| {
-//!                 ui.text("Hello from imgui-vulkano-task-renderer!");
+//!                 ui.text("Hello from imgui-vulkano!");
 //!             });
 //!     }
 //!

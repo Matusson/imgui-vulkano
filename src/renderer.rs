@@ -109,7 +109,7 @@ impl VulkanoRenderer {
         ctx.fonts().tex_id = TextureId::from(usize::MAX);
 
         ctx.set_renderer_name(Some(format!(
-            "imgui-vulkano-task-renderer {}",
+            "imgui-vulkano {}",
             env!("CARGO_PKG_VERSION")
         )));
 

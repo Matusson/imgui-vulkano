@@ -1,4 +1,4 @@
-// Custom Textures example for imgui-vulkano-task-renderer
+// Custom Textures example for imgui-vulkano
 // Demonstrates how to upload and display custom textures
 
 mod common;
@@ -622,7 +622,7 @@ impl ApplicationHandler for App {
             event_loop
                 .create_window(
                     Window::default_attributes()
-                        .with_title("imgui-vulkano-task-renderer: custom_textures"),
+                        .with_title("imgui-vulkano: custom_textures"),
                 )
                 .unwrap(),
         );

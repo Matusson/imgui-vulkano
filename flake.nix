@@ -1,5 +1,5 @@
 {
-  description = "imgui-vulkano-task-renderer development environment";
+  description = "imgui-vulkano development environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

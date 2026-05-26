@@ -308,7 +308,7 @@ impl ApplicationHandler for App {
             event_loop
                 .create_window(
                     Window::default_attributes()
-                        .with_title("imgui-vulkano-task-renderer: hello_world"),
+                        .with_title("imgui-vulkano: hello_world"),
                 )
                 .unwrap(),
         );
