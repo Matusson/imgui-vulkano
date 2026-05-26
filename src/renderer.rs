@@ -9,18 +9,22 @@ use vulkano::image::sampler::SamplerCreateInfo;
 use vulkano::image::view::ImageViewCreateInfo;
 use vulkano::image::{ImageCreateInfo, ImageType, ImageUsage as ImageUsageFlags};
 use vulkano::memory::allocator::AllocationCreateInfo;
-use vulkano::pipeline::graphics::color_blend::{AttachmentBlend, ColorBlendAttachmentState, ColorBlendState};
+use vulkano::pipeline::graphics::color_blend::{
+    AttachmentBlend, ColorBlendAttachmentState, ColorBlendState,
+};
 use vulkano::pipeline::graphics::input_assembly::InputAssemblyState;
 use vulkano::pipeline::graphics::multisample::MultisampleState;
 use vulkano::pipeline::graphics::rasterization::RasterizationState;
+use vulkano::pipeline::graphics::subpass::PipelineSubpassType;
 use vulkano::pipeline::graphics::vertex_input::{Vertex as VertexTrait, VertexDefinition};
 use vulkano::pipeline::graphics::viewport::{Scissor, ViewportState};
 use vulkano::pipeline::graphics::GraphicsPipelineCreateInfo;
-use vulkano::pipeline::graphics::subpass::PipelineSubpassType;
 use vulkano::pipeline::{DynamicState, GraphicsPipeline, PipelineShaderStageCreateInfo};
 use vulkano::render_pass::Subpass;
-use vulkano_taskgraph::descriptor_set::{BindlessContext, SamplerId, SampledImageId};
-use vulkano_taskgraph::resource::{AccessTypes, Flight, HostAccessType, ImageLayoutType, Resources};
+use vulkano_taskgraph::descriptor_set::{BindlessContext, SampledImageId, SamplerId};
+use vulkano_taskgraph::resource::{
+    AccessTypes, Flight, HostAccessType, ImageLayoutType, Resources,
+};
 use vulkano_taskgraph::{command_buffer::CopyBufferToImageInfo, Id};
 
 /// Error type for renderer operations.
@@ -36,7 +40,9 @@ impl fmt::Display for RendererError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::BadTexture(t) => write!(f, "Texture ID not found: {:?}", t),
-            Self::BadImageDimensions(d) => write!(f, "Unsupported image dimensions (must be 2D): {:?}", d),
+            Self::BadImageDimensions(d) => {
+                write!(f, "Unsupported image dimensions (must be 2D): {:?}", d)
+            }
         }
     }
 }
@@ -95,15 +101,9 @@ impl VulkanoRenderer {
         bindless_context: &BindlessContext,
         gamma: Option<f32>,
     ) -> Result<Self, Box<dyn Error>> {
-
         let textures = Textures::new();
-        let font_texture = Self::upload_font_texture(
-            ctx.fonts(),
-            queue,
-            resources,
-            flight_id,
-            bindless_context,
-        )?;
+        let font_texture =
+            Self::upload_font_texture(ctx.fonts(), queue, resources, flight_id, bindless_context)?;
 
         // Set the font texture ID to the special value
         ctx.fonts().tex_id = TextureId::from(usize::MAX);
@@ -143,9 +143,7 @@ impl VulkanoRenderer {
             .entry_point("main")
             .ok_or("Failed to load fragment shader")?;
 
-        let vertex_input_state = crate::Vertex::per_vertex()
-            .definition(&vs)
-            .unwrap();
+        let vertex_input_state = crate::Vertex::per_vertex().definition(&vs).unwrap();
 
         let stages = [
             PipelineShaderStageCreateInfo::new(&vs),
@@ -175,10 +173,7 @@ impl VulkanoRenderer {
                     }],
                     ..Default::default()
                 }),
-                dynamic_state: &[
-                    DynamicState::Viewport,
-                    DynamicState::Scissor,
-                ],
+                dynamic_state: &[DynamicState::Viewport, DynamicState::Scissor],
                 subpass: Some(PipelineSubpassType::BeginRenderPass(&subpass)),
                 ..GraphicsPipelineCreateInfo::new(&layout)
             },
@@ -229,13 +224,8 @@ impl VulkanoRenderer {
         flight_id: Id<Flight>,
         bindless_context: &BindlessContext,
     ) -> Result<(), Box<dyn Error>> {
-        self.font_texture = Self::upload_font_texture(
-            ctx.fonts(),
-            queue,
-            resources,
-            flight_id,
-            bindless_context,
-        )?;
+        self.font_texture =
+            Self::upload_font_texture(ctx.fonts(), queue, resources, flight_id, bindless_context)?;
 
         Ok(())
     }
@@ -305,7 +295,12 @@ impl VulkanoRenderer {
         )?;
 
         // Set debug names if debug utils is enabled
-        if resources.device().instance().enabled_extensions().ext_debug_utils {
+        if resources
+            .device()
+            .instance()
+            .enabled_extensions()
+            .ext_debug_utils
+        {
             unsafe {
                 resources
                     .buffer(staging_buffer_id)
@@ -357,20 +352,27 @@ impl VulkanoRenderer {
                 },
                 [(staging_buffer_id, HostAccessType::Write)],
                 [(staging_buffer_id, AccessTypes::COPY_TRANSFER_READ)],
-                [(image_id, AccessTypes::COPY_TRANSFER_WRITE, ImageLayoutType::Optimal)],
+                [(
+                    image_id,
+                    AccessTypes::COPY_TRANSFER_WRITE,
+                    ImageLayoutType::Optimal,
+                )],
             )
             .unwrap();
         }
 
         // Register with bindless context
         let global_set = bindless_context.global_set();
-        let sampler_id = global_set.create_sampler(&SamplerCreateInfo::simple_repeat_linear())
+        let sampler_id = global_set
+            .create_sampler(&SamplerCreateInfo::simple_repeat_linear())
             .expect("Failed to create sampler");
-        let sampled_image_id = global_set.create_sampled_image(
-            image_id,
-            &ImageViewCreateInfo::from_image(resources.image(image_id).image()),
-            vulkano::image::ImageLayout::ShaderReadOnlyOptimal,
-        ).expect("failed to create sampled image");
+        let sampled_image_id = global_set
+            .create_sampled_image(
+                image_id,
+                &ImageViewCreateInfo::from_image(resources.image(image_id).image()),
+                vulkano::image::ImageLayout::ShaderReadOnlyOptimal,
+            )
+            .expect("failed to create sampled image");
 
         Ok(Texture {
             sampled_image_id,

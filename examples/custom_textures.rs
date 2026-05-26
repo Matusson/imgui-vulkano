@@ -4,27 +4,30 @@
 mod common;
 
 use imgui::*;
-use imgui_vulkano_task_renderer::{HasImguiContext, ImguiFrameData, VulkanoRenderer, ImguiBuffers, ImguiVirtualBuffers, ImguiTaskNodes};
+use imgui_vulkano_task_renderer::{
+    HasImguiContext, ImguiBuffers, ImguiFrameData, ImguiTaskNodes, ImguiVirtualBuffers,
+    VulkanoRenderer,
+};
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use std::cell::RefCell;
 use std::error::Error;
 use std::sync::Arc;
+use vulkano::image::view::ImageView;
 use vulkano::{
     buffer::{BufferCreateInfo, BufferUsage},
     device::{Device, Queue},
     format::Format,
+    image::sampler::{Sampler, SamplerCreateInfo},
     image::{ImageCreateInfo, ImageType, ImageUsage as ImageUsageFlags},
     instance::Instance,
     memory::allocator::{AllocationCreateInfo, DeviceLayout},
-    image::sampler::{Sampler, SamplerCreateInfo},
     swapchain::{PresentMode, Surface, Swapchain, SwapchainCreateInfo},
 };
-use vulkano::image::view::ImageView;
 use vulkano_taskgraph::{
     command_buffer::CopyBufferToImageInfo,
     descriptor_set::BindlessContext,
     graph::{CompileInfo, ExecutableTaskGraph, TaskGraph},
-    resource::{AccessTypes, Flight, ImageLayoutType, Resources, HostAccessType},
+    resource::{AccessTypes, Flight, HostAccessType, ImageLayoutType, Resources},
     resource_map, Id,
 };
 
@@ -136,7 +139,11 @@ impl CustomTexturesApp {
                     },
                     [(staging_buffer_id, HostAccessType::Write)],
                     [(staging_buffer_id, AccessTypes::COPY_TRANSFER_READ)],
-                    [(image_id, AccessTypes::COPY_TRANSFER_WRITE, ImageLayoutType::Optimal)],
+                    [(
+                        image_id,
+                        AccessTypes::COPY_TRANSFER_WRITE,
+                        ImageLayoutType::Optimal,
+                    )],
                 )
                 .unwrap();
             }
@@ -146,10 +153,7 @@ impl CustomTexturesApp {
 
             // Create view and sampler
             let image_view = ImageView::new_default(&image)?;
-            let sampler = Sampler::new(
-                &device,
-                &SamplerCreateInfo::simple_repeat_linear(),
-            )?;
+            let sampler = Sampler::new(&device, &SamplerCreateInfo::simple_repeat_linear())?;
 
             // Register with bindless context to get descriptor IDs
             let global_set = bindless_context.global_set();
@@ -276,7 +280,11 @@ impl TestTexture {
                 },
                 [(staging_buffer_id, HostAccessType::Write)],
                 [(staging_buffer_id, AccessTypes::COPY_TRANSFER_READ)],
-                [(image_id, AccessTypes::COPY_TRANSFER_WRITE, ImageLayoutType::Optimal)],
+                [(
+                    image_id,
+                    AccessTypes::COPY_TRANSFER_WRITE,
+                    ImageLayoutType::Optimal,
+                )],
             )
             .unwrap();
         }
@@ -286,10 +294,7 @@ impl TestTexture {
 
         // Create view and sampler
         let image_view = ImageView::new_default(&image)?;
-        let sampler = Sampler::new(
-            &device,
-            &SamplerCreateInfo::simple_repeat_linear(),
-        )?;
+        let sampler = Sampler::new(&device, &SamplerCreateInfo::simple_repeat_linear())?;
 
         // Register with bindless context to get descriptor IDs
         let global_set = bindless_context.global_set();
@@ -345,7 +350,9 @@ impl HasImguiContext for RenderContext {
 
     fn after_build_ui(&self, ui: &imgui::Ui) {
         // Platform-specific integration (winit's prepare_render)
-        self.imgui_platform.borrow_mut().prepare_render(ui, &self.window);
+        self.imgui_platform
+            .borrow_mut()
+            .prepare_render(ui, &self.window);
     }
 }
 
@@ -406,19 +413,23 @@ impl App {
         let hidpi_factor = platform.hidpi_factor();
         common::setup_fonts(&mut imgui, hidpi_factor);
 
-        let bindless_context = self.resources.bindless_context()
+        let bindless_context = self
+            .resources
+            .bindless_context()
             .expect("Resources should have bindless context");
 
-        let renderer = unsafe {VulkanoRenderer::new(
-            &mut imgui,
-            self.device.clone(),
-            self.queue.clone(),
-            &self.resources,
-            self.flight_id,
-            bindless_context,
-            Some(2.2f32)
-        )
-        .expect("Failed to create renderer")};
+        let renderer = unsafe {
+            VulkanoRenderer::new(
+                &mut imgui,
+                self.device.clone(),
+                self.queue.clone(),
+                &self.resources,
+                self.flight_id,
+                bindless_context,
+                Some(2.2f32),
+            )
+            .expect("Failed to create renderer")
+        };
 
         self.render_context = Some(RenderContext {
             imgui_ctx: RefCell::new(imgui),
@@ -468,7 +479,6 @@ impl App {
                 })
                 .expect("Failed to recreate swapchain")
         } else {
-
             self.resources
                 .create_swapchain(&surface, &swapchain_info)
                 .expect("Failed to create swapchain")
@@ -481,8 +491,8 @@ impl App {
         const FRAMES_IN_FLIGHT: usize = 3;
         if self.imgui_buffers.is_empty() {
             for _ in 0..FRAMES_IN_FLIGHT {
-                let buffers = ImguiBuffers::new(&self.resources)
-                    .expect("Failed to create imgui buffers");
+                let buffers =
+                    ImguiBuffers::new(&self.resources).expect("Failed to create imgui buffers");
                 self.imgui_buffers.push(buffers);
             }
         }
@@ -524,7 +534,9 @@ impl App {
 
         // Register custom textures with bindless context after pipeline creation
         if !self.textures_registered {
-            let bindless_context = self.resources.bindless_context()
+            let bindless_context = self
+                .resources
+                .bindless_context()
                 .expect("Resources should have bindless context");
             let (_, renderer_ref) = rcx.imgui_components();
             let mut renderer = renderer_ref.borrow_mut();
@@ -615,8 +627,8 @@ impl ApplicationHandler for App {
                 .unwrap(),
         );
 
-        let surface = Surface::from_window(&self.instance, &window)
-            .expect("Failed to create surface");
+        let surface =
+            Surface::from_window(&self.instance, &window).expect("Failed to create surface");
 
         self.window = Some(window);
         self.surface = Some(surface);

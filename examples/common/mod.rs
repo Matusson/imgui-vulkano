@@ -1,7 +1,7 @@
 // Common utilities for examples
 
-use std::sync::Arc;
 use imgui::{Context, FontConfig, FontGlyphRanges, FontSource};
+use std::sync::Arc;
 use vulkano::{
     device::{
         physical::PhysicalDeviceType, Device, DeviceCreateInfo, DeviceExtensions, DeviceFeatures,
@@ -105,9 +105,7 @@ impl VulkanContext {
         )
         .expect("Failed to create resources");
 
-        let flight_id = resources
-            .create_flight(3)
-            .expect("Failed to create flight");
+        let flight_id = resources.create_flight(3).expect("Failed to create flight");
 
         VulkanContext {
             instance,
@@ -147,10 +145,7 @@ pub fn setup_fonts(imgui: &mut Context, hidpi_factor: f64) {
 ///
 /// For the sake of examples, we use an SRGB surface here and specify gamma 2.2 when constructing
 /// the renderer. You could also pick an UNORM format and specify gamma 1.0 in the renderer.
-pub fn select_surface_format(
-    device: &Device,
-    surface: &Arc<Surface>,
-) -> (Format, ColorSpace) {
+pub fn select_surface_format(device: &Device, surface: &Arc<Surface>) -> (Format, ColorSpace) {
     let surface_info = SurfaceInfo::default();
     let surface_formats = device
         .physical_device()
@@ -162,10 +157,7 @@ pub fn select_surface_format(
         .iter()
         .find(|(format, color_space)| {
             matches!(color_space, ColorSpace::SrgbNonLinear)
-                && matches!(
-                    format,
-                    Format::R8G8B8A8_SRGB | Format::B8G8R8A8_SRGB
-                )
+                && matches!(format, Format::R8G8B8A8_SRGB | Format::B8G8R8A8_SRGB)
         })
         .copied()
         .unwrap_or_else(|| {

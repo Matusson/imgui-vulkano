@@ -1,4 +1,12 @@
-#[derive(Clone, Copy, Debug, Default, bytemuck::Pod, bytemuck::Zeroable, vulkano::pipeline::graphics::vertex_input::Vertex)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Default,
+    bytemuck::Pod,
+    bytemuck::Zeroable,
+    vulkano::pipeline::graphics::vertex_input::Vertex,
+)]
 #[repr(C)]
 /// Vertex format for imgui rendering.
 pub struct Vertex {

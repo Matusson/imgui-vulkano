@@ -3,21 +3,21 @@
 //! This module provides utilities for creating and managing the vertex and index buffers
 //! needed for imgui.
 
+use crate::task::{HasImguiContext, ImguiDrawTask, ImguiUploadTask};
 use std::sync::Arc;
+use vulkano::buffer::Buffer;
+use vulkano::device::{DeviceOwned, DeviceOwnedVulkanObject};
+use vulkano::memory::allocator::MemoryTypeFilter;
 use vulkano::{
     buffer::{AllocateBufferError, BufferCreateInfo, BufferUsage},
     memory::allocator::{AllocationCreateInfo, DeviceLayout},
     Validated,
 };
-use vulkano::buffer::Buffer;
-use vulkano::device::{DeviceOwned, DeviceOwnedVulkanObject};
-use vulkano::memory::allocator::MemoryTypeFilter;
 use vulkano_taskgraph::{
     graph::{NodeId, TaskGraph},
     resource::{AccessTypes, HostAccessType, ImageLayoutType, Resources},
     Id, QueueFamilyType,
 };
-use crate::task::{HasImguiContext, ImguiDrawTask, ImguiUploadTask};
 
 /// Default vertex buffer size (1MB)
 pub const DEFAULT_VERTEX_BUFFER_SIZE: u64 = 1024 * 1024;
@@ -129,7 +129,12 @@ impl ImguiBuffers {
         )?;
 
         // Set debug names if debug utils is enabled
-        if resources.device().instance().enabled_extensions().ext_debug_utils {
+        if resources
+            .device()
+            .instance()
+            .enabled_extensions()
+            .ext_debug_utils
+        {
             unsafe {
                 resources
                     .buffer(vertex_buffer_id)
@@ -284,14 +289,17 @@ impl ImguiTaskNodes {
         }
 
         // Not initialized, proceed with setup
-        let draw_task_node = executable.task_node_mut(self.draw)
+        let draw_task_node = executable
+            .task_node_mut(self.draw)
             .map_err(|e| format!("Draw task node not found in executable: {e:?}"))?;
 
-        let subpass = draw_task_node.subpass()
+        let subpass = draw_task_node
+            .subpass()
             .map(|sp| Arc::new(sp.clone()))
             .ok_or("Task node should have a subpass")?;
 
-        let bindless_context = resources.bindless_context()
+        let bindless_context = resources
+            .bindless_context()
             .ok_or("Resources should have bindless context")?;
 
         unsafe {
@@ -394,7 +402,6 @@ impl ImguiVirtualBuffers {
             .buffer_access(self.v_vertex_buffer, AccessTypes::COPY_TRANSFER_WRITE)
             .buffer_access(self.v_index_buffer, AccessTypes::COPY_TRANSFER_WRITE)
             .build();
-
 
         // Create imgui draw task (runs inside render pass)
         let imgui_draw_task = ImguiDrawTask::<T> {

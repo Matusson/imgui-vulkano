@@ -164,8 +164,11 @@ mod task;
 mod vertex;
 
 // Re-export public API
-pub use buffers::{ImguiBuffers, ImguiBufferConfig, ImguiVirtualBuffers, ImguiTaskNodes, DEFAULT_VERTEX_BUFFER_SIZE, DEFAULT_INDEX_BUFFER_SIZE};
+pub use buffers::{
+    ImguiBufferConfig, ImguiBuffers, ImguiTaskNodes, ImguiVirtualBuffers,
+    DEFAULT_INDEX_BUFFER_SIZE, DEFAULT_VERTEX_BUFFER_SIZE,
+};
 pub use context::ImguiContext;
-pub use renderer::{VulkanoRenderer, RendererError, Texture};
-pub use task::{HasImguiContext, ImguiFrameData, ImguiUploadTask, ImguiDrawTask};
+pub use renderer::{RendererError, Texture, VulkanoRenderer};
+pub use task::{HasImguiContext, ImguiDrawTask, ImguiFrameData, ImguiUploadTask};
 pub use vertex::Vertex;

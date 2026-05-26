@@ -1,7 +1,10 @@
 mod common;
 
 use imgui::*;
-use imgui_vulkano_task_renderer::{HasImguiContext, ImguiContext, VulkanoRenderer, ImguiBuffers, ImguiVirtualBuffers, ImguiTaskNodes};
+use imgui_vulkano_task_renderer::{
+    HasImguiContext, ImguiBuffers, ImguiContext, ImguiTaskNodes, ImguiVirtualBuffers,
+    VulkanoRenderer,
+};
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use std::cell::RefCell;
 use std::sync::Arc;
@@ -60,7 +63,10 @@ impl HasImguiContext for RenderContext {
 
     fn after_build_ui(&self, ui: &Ui) {
         // Platform-specific integration (winit's prepare_render)
-        self.imgui.platform().borrow_mut().prepare_render(ui, self.imgui.window());
+        self.imgui
+            .platform()
+            .borrow_mut()
+            .prepare_render(ui, self.imgui.window());
     }
 }
 
@@ -84,7 +90,6 @@ struct App {
     swapchain_id: Option<Id<Swapchain>>,
     imgui_buffers: Option<ImguiBuffers>, // This example uses only one set of buffers. Check
     // custom_textures example for demonstration of multiple buffers.
-
     recreate_swapchain: bool,
 }
 
@@ -119,27 +124,26 @@ impl App {
         let hidpi_factor = platform.hidpi_factor();
         common::setup_fonts(&mut imgui, hidpi_factor);
 
-        let bindless_context = self.resources.bindless_context()
+        let bindless_context = self
+            .resources
+            .bindless_context()
             .expect("Resources should have bindless context");
 
-
-        let renderer = unsafe{ VulkanoRenderer::new(
-            &mut imgui,
-            self.device.clone(),
-            self.queue.clone(),
-            &self.resources,
-            self.flight_id,
-            bindless_context,
-            Some(2.2f32),
-        )}
+        let renderer = unsafe {
+            VulkanoRenderer::new(
+                &mut imgui,
+                self.device.clone(),
+                self.queue.clone(),
+                &self.resources,
+                self.flight_id,
+                bindless_context,
+                Some(2.2f32),
+            )
+        }
         .expect("Failed to create renderer");
 
-        let imgui_context = ImguiContext::new(
-            imgui,
-            platform,
-            renderer,
-            self.window.clone().unwrap(),
-        );
+        let imgui_context =
+            ImguiContext::new(imgui, platform, renderer, self.window.clone().unwrap());
 
         self.render_context = Some(RenderContext {
             imgui: imgui_context,
@@ -192,12 +196,9 @@ impl App {
 
         // Create physical imgui buffers if they don't exist
         if self.imgui_buffers.is_none() {
-            self.imgui_buffers = Some(
-                ImguiBuffers::new(&self.resources)
-                    .expect("Failed to create imgui buffers")
-            );
+            self.imgui_buffers =
+                Some(ImguiBuffers::new(&self.resources).expect("Failed to create imgui buffers"));
         }
-
 
         // Build task graph
         let mut task_graph = TaskGraph::new(&self.resources);
@@ -312,8 +313,8 @@ impl ApplicationHandler for App {
                 .unwrap(),
         );
 
-        let surface = Surface::from_window(&self.instance, &window)
-            .expect("Failed to create surface");
+        let surface =
+            Surface::from_window(&self.instance, &window).expect("Failed to create surface");
 
         self.window = Some(window);
         self.surface = Some(surface);

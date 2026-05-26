@@ -3,15 +3,15 @@
 
 use crate::renderer::VulkanoRenderer;
 use crate::Vertex;
+use bytemuck::{Pod, Zeroable};
 use std::cell::RefCell;
 use std::sync::Arc;
+use vulkano::buffer::Buffer;
+use vulkano::image::Image;
+use vulkano::pipeline::Pipeline;
 use vulkano::render_pass::Subpass;
 use vulkano_taskgraph::command_buffer::RecordingCommandBuffer;
 use vulkano_taskgraph::{Id, Task, TaskContext, TaskResult};
-use vulkano::buffer::Buffer;
-use vulkano::image::Image;
-use bytemuck::{Pod, Zeroable};
-use vulkano::pipeline::Pipeline;
 
 /// Draw data for a single frame (internal, passed from upload to draw task).
 #[derive(Clone)]
@@ -31,7 +31,7 @@ pub(crate) struct ImguiDrawCommand {
     pub(crate) vtx_offset: usize,
 }
 
-use vulkano_taskgraph::descriptor_set::{SamplerId, SampledImageId};
+use vulkano_taskgraph::descriptor_set::{SampledImageId, SamplerId};
 
 /// Holds frame data passed from the upload task to the draw task.
 ///
@@ -76,7 +76,9 @@ impl ImguiFrameData {
         self.indices.borrow_mut()
     }
 
-    pub(crate) fn draw_commands_mut(&self) -> std::cell::RefMut<'_, Vec<(usize, usize, Vec<ImguiDrawCommand>)>> {
+    pub(crate) fn draw_commands_mut(
+        &self,
+    ) -> std::cell::RefMut<'_, Vec<(usize, usize, Vec<ImguiDrawCommand>)>> {
         self.draw_commands.borrow_mut()
     }
 }
@@ -332,8 +334,11 @@ pub struct ImguiDrawTask<W> {
 impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
     type World = W;
 
-    fn clear_values(&self, _clear_values: &mut vulkano_taskgraph::ClearValues<'_>, _world: &Self::World) {
-
+    fn clear_values(
+        &self,
+        _clear_values: &mut vulkano_taskgraph::ClearValues<'_>,
+        _world: &Self::World,
+    ) {
     }
 
     unsafe fn execute(
@@ -362,7 +367,12 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
         unsafe {
             cbf.bind_pipeline_graphics(&pipeline)
                 .bind_vertex_buffers(0, &[self.v_vertex_buffer], &[0], &[], &[])
-                .bind_index_buffer(self.v_index_buffer, 0, None, vulkano::buffer::IndexType::U16);
+                .bind_index_buffer(
+                    self.v_index_buffer,
+                    0,
+                    None,
+                    vulkano::buffer::IndexType::U16,
+                );
         }
 
         // Setup viewport
@@ -386,7 +396,8 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
         // Render each draw list
         for (vtx_offset, idx_offset, commands) in draw_commands.iter() {
             for cmd in commands {
-                let texture = renderer.lookup_texture(cmd.texture_id)
+                let texture = renderer
+                    .lookup_texture(cmd.texture_id)
                     .expect("Texture not found - this is a programming error");
 
                 let push_constants = ImguiPushConstants {
@@ -395,11 +406,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
                     sampler_id: texture.sampler_id,
                 };
 
-                cbf.push_constants(
-                    pipeline.layout(),
-                    0,
-                    &push_constants,
-                );
+                cbf.push_constants(pipeline.layout(), 0, &push_constants);
 
                 // Set scissor
                 let clip_rect = cmd.clip_rect;
