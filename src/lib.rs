@@ -143,6 +143,7 @@
 //! ```
 //! Additionally, you may only use parts of the library if you wish. For example, you may want to manage buffers yourself,
 //! or you might want to wrap the default task implementations to add extra logic.
+//!
 //! ## Pre-release warning
 //! This crate is currently pre-release and the API might introduce breaking changes without warning. This will
 //! be the case at least until `vulkano-taskgraph` is fully released, as right now it requires a git dependency. I'm
@@ -152,6 +153,9 @@
 //! So far, I only tested it with reasonably basic UIs. It's possible there are issues, and it's possible the library
 //! is not as flexible as it should be. Please raise an issue or submit a PR if you see problems.
 //!
+//! ## Acknowledgements
+//! While this project was written from scratch, I did reference [imgui-vulkano-renderer](https://github.com/Tenebryo/imgui-vulkano-renderer)
+//! while developing it. In general, this project is an attempt to reimplement imgui-vulkano-renderer for the task graph.
 //!
 //! ## License
 //! Licensed under [MIT](http://opensource.org/licenses/MIT) license.

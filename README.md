@@ -154,6 +154,9 @@ release with `vulkano-taskgraph`, this crate will also get a stable release.
 So far, I only tested it with reasonably basic UIs. It's possible there are issues, and it's possible the library
 is not as flexible as it should be. Please raise an issue or submit a PR if you see problems.
 
+## Acknowledgements
+While this project was written from scratch, I did reference [imgui-vulkano-renderer](https://github.com/Tenebryo/imgui-vulkano-renderer)
+while developing it. In general, this project is an attempt to reimplement imgui-vulkano-renderer for the task graph.
 
 ## License
 Licensed under [MIT](http://opensource.org/licenses/MIT) license.
