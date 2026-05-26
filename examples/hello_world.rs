@@ -122,7 +122,8 @@ impl App {
         let bindless_context = self.resources.bindless_context()
             .expect("Resources should have bindless context");
 
-        let renderer = VulkanoRenderer::new(
+
+        let renderer = unsafe{ VulkanoRenderer::new(
             &mut imgui,
             self.device.clone(),
             self.queue.clone(),
@@ -130,7 +131,7 @@ impl App {
             self.flight_id,
             bindless_context,
             Some(2.2f32),
-        )
+        )}
         .expect("Failed to create renderer");
 
         let imgui_context = ImguiContext::new(

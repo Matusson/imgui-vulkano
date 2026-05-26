@@ -82,7 +82,11 @@ impl VulkanoRenderer {
     /// * `flight_id` - Flight ID for synchronization during font upload
     /// * `bindless_context` - Bindless context for registering font texture
     /// * `gamma` - Optional gamma correction (default: 1.0)
-    pub fn new(
+    ///
+    /// # Safety
+    /// This function executes a texture upload. It must meet the same safety requirements
+    /// as [vulkano_taskgraph::graph::TaskGraph::new].
+    pub unsafe fn new(
         ctx: &mut imgui::Context,
         device: Arc<Device>,
         queue: Arc<Queue>,
@@ -122,6 +126,9 @@ impl VulkanoRenderer {
     ///
     /// This is typically called from `ImguiTaskNodes::setup_after_compile()` after task graph
     /// compilation. This method is idempotent and safe to call multiple times.
+    ///
+    /// # Safety
+    /// Requirements are the same as [vulkano::shader::ShaderModule::new].
     pub unsafe fn create_pipeline(
         &mut self,
         subpass: Arc<Subpass>,
@@ -211,7 +218,10 @@ impl VulkanoRenderer {
     }
 
     /// Reload the font texture after font changes.
-    pub fn reload_font_texture(
+    ///
+    /// # Safety
+    /// Same requirements as [Self::new]
+    pub unsafe fn reload_font_texture(
         &mut self,
         ctx: &mut imgui::Context,
         queue: Arc<Queue>,
@@ -255,7 +265,7 @@ impl VulkanoRenderer {
     }
 
     /// Upload the font atlas texture to the GPU and register with bindless context.
-    fn upload_font_texture(
+    unsafe fn upload_font_texture(
         fonts: &mut imgui::FontAtlas,
         queue: Arc<Queue>,
         resources: &Arc<Resources>,
@@ -322,7 +332,7 @@ impl VulkanoRenderer {
                 |cbf, tcx| {
                     // Write data to staging buffer
                     tcx.write_buffer::<[u8]>(staging_buffer_id, ..)
-                        .copy_from_slice(&font_atlas.data);
+                        .copy_from_slice(font_atlas.data);
 
                     // Copy staging buffer to image
                     cbf.copy_buffer_to_image(&CopyBufferToImageInfo {

@@ -188,10 +188,10 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiUploadTask<W> {
         // Build UI
         let mut imgui_ctx = ctx_ref.borrow_mut();
         let ui = imgui_ctx.new_frame();
-        world.build_ui(&ui);
+        world.build_ui(ui);
 
         // Call platform-specific hook (e.g., prepare_render for winit)
-        world.after_build_ui(&ui);
+        world.after_build_ui(ui);
 
         // Get draw data
         let draw_data = imgui_ctx.render();
@@ -432,6 +432,10 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
 
 /// Setup implementation for the draw task (called after graph compilation).
 impl<W: HasImguiContext> ImguiDrawTask<W> {
+    /// Compiles the pipeline for the subpass.
+    ///
+    /// # Safety
+    /// This method compiles a graphics pipeline, so requirements are the same as [VulkanoRenderer::create_pipeline].
     pub unsafe fn setup_after_compile(
         &mut self,
         subpass: Arc<Subpass>,

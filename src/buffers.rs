@@ -51,11 +51,11 @@ impl Default for ImguiBufferConfig {
 /// you have two options:
 ///
 /// 1. Use a single `ImguiBuffers` instance for all frames.
-/// This is safe if you wait for the GPU to complete its work before starting work on the next
-/// frame. Though, this removes your ability to do pipelining.
+///    This is safe if you wait for the GPU to complete its work before starting work on the next
+///    frame. Though, this removes your ability to do pipelining.
 ///
 /// 2. Create one `ImguiBuffers` instance per frame in flight for better CPU/GPU overlap.
-/// This allows the CPU to prepare frame N+1 while the GPU is still processing frame N.
+///    This allows the CPU to prepare frame N+1 while the GPU is still processing frame N.
 pub struct ImguiBuffers {
     /// device-local vertex buffer
     pub vertex_buffer_id: Id<Buffer>,
@@ -333,9 +333,9 @@ impl ImguiVirtualBuffers {
     /// * `task_graph` - The task graph to add tasks to
     /// * `target_image` - The image to render ImGui to
     /// * `last_pre_imgui_node` - Optional node that the internal tasks connect to. This task
-    /// must complete before imgui tasks start executing.
+    ///   must complete before imgui tasks start executing.
     ///  * `first_post_imgui_node` - Optional node that the internal tasks connect to. This task
-    /// can begin executing after imgui tasks have completed.
+    ///    can begin executing after imgui tasks have completed.
     ///
     /// # Returns
     ///
