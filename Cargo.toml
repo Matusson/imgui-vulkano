@@ -1,0 +1,35 @@
+[package]
+name = "imgui-vulkano-task-renderer"
+version = "0.1.0-alpha"
+edition = "2021"
+description = "An imgui-rs renderer based on vulkano-taskgraph"
+readme= "README.md"
+license = "MIT"
+repository = "https://github.com/Matusson/imgui-vulkano-task-renderer"
+keywords = ["imgui", "vulkan", "vulkano", "gui", "taskgraph"]
+categories = ["gui", "graphics", "rendering"]
+
+[dependencies]
+imgui = "0.12.0"
+vulkano = { path = "../vulkano/vulkano" }
+vulkano-taskgraph = { path = "../vulkano/vulkano-taskgraph" }
+vulkano-shaders = { path = "../vulkano/vulkano-shaders" }
+bytemuck = { version = "1.14", features = ["derive"] }
+imgui-winit-support = "0.13.0"
+winit = "0.30"
+
+[dev-dependencies]
+winit = "0.30"
+image = "0.25"
+
+[lib]
+name = "imgui_vulkano_task_renderer"
+path = "src/lib.rs"
+
+[[example]]
+name = "hello_world"
+path = "examples/hello_world.rs"
+
+[[example]]
+name = "custom_textures"
+path = "examples/custom_textures.rs"
