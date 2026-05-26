@@ -202,7 +202,7 @@ impl App {
         let mut task_graph = TaskGraph::new(&self.resources);
 
         // Get swapchain info
-        let swapchain_state = self.resources.swapchain(swapchain_id).unwrap();
+        let swapchain_state = self.resources.swapchain(swapchain_id);
         let swapchain_info = SwapchainCreateInfo {
             image_format: swapchain_state.images()[0].format(),
             image_extent: swapchain_state.images()[0].extent()[0..2]
@@ -257,7 +257,7 @@ impl App {
         }
 
         // Wait for the previous frame to finish before starting a new one
-        let flight = self.resources.flight(self.flight_id).unwrap();
+        let flight = self.resources.flight(self.flight_id);
         flight.wait(None).unwrap();
 
         let rcx = self.render_context.as_ref().unwrap();

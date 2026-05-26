@@ -122,7 +122,7 @@ impl VulkanoRenderer {
     ///
     /// This is typically called from `ImguiTaskNodes::setup_after_compile()` after task graph
     /// compilation. This method is idempotent and safe to call multiple times.
-    pub fn create_pipeline(
+    pub unsafe fn create_pipeline(
         &mut self,
         subpass: Arc<Subpass>,
         bindless_context: &BindlessContext,
@@ -132,7 +132,7 @@ impl VulkanoRenderer {
             .ok_or("Failed to load vertex shader")?;
 
         let fs = shader::fs::load(&self.device)?
-            .specialize(&[(0, self.gamma.into())])?
+            .specialize(&[(0, self.gamma.into())])
             .entry_point("main")
             .ok_or("Failed to load fragment shader")?;
 
@@ -299,13 +299,11 @@ impl VulkanoRenderer {
             unsafe {
                 resources
                     .buffer(staging_buffer_id)
-                    .unwrap()
                     .buffer()
                     .set_debug_utils_object_name(Some("ImGui Font Staging Buffer"))
                     .unwrap();
                 resources
                     .image(image_id)
-                    .unwrap()
                     .image()
                     .set_debug_utils_object_name(Some("ImGui Font Texture"))
                     .unwrap();
@@ -313,7 +311,7 @@ impl VulkanoRenderer {
         }
 
         // Wait for the flight before using it
-        resources.flight(flight_id).unwrap().wait(None).unwrap();
+        resources.flight(flight_id).wait(None).unwrap();
 
         // Upload texture data
         unsafe {
@@ -323,7 +321,7 @@ impl VulkanoRenderer {
                 flight_id,
                 |cbf, tcx| {
                     // Write data to staging buffer
-                    tcx.write_buffer::<[u8]>(staging_buffer_id, ..)?
+                    tcx.write_buffer::<[u8]>(staging_buffer_id, ..)
                         .copy_from_slice(&font_atlas.data);
 
                     // Copy staging buffer to image
@@ -343,8 +341,7 @@ impl VulkanoRenderer {
                             ..Default::default()
                         }],
                         ..CopyBufferToImageInfo::new()
-                    })
-                    .unwrap();
+                    });
 
                     Ok(())
                 },
@@ -361,7 +358,7 @@ impl VulkanoRenderer {
             .expect("Failed to create sampler");
         let sampled_image_id = global_set.create_sampled_image(
             image_id,
-            &ImageViewCreateInfo::from_image(resources.image(image_id)?.image()),
+            &ImageViewCreateInfo::from_image(resources.image(image_id).image()),
             vulkano::image::ImageLayout::ShaderReadOnlyOptimal,
         ).expect("failed to create sampled image");
 

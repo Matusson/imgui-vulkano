@@ -32,8 +32,7 @@ impl VulkanContext {
     /// Creates a new VulkanContext with default settings for examples
     pub fn new(event_loop: &EventLoop<()>) -> Self {
         let library = unsafe { VulkanLibrary::new().expect("Failed to load Vulkan library") };
-        let required_extensions = Surface::required_extensions(event_loop)
-            .expect("Event loop does not support required surface extensions");
+        let required_extensions = Surface::required_extensions(event_loop);
 
         let instance = Instance::new(
             &library,

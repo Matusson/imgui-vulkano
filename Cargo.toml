@@ -11,10 +11,10 @@ categories = ["gui", "graphics", "rendering"]
 
 [dependencies]
 imgui = "0.12.0"
-vulkano = { path = "../vulkano/vulkano" }
-vulkano-taskgraph = { path = "../vulkano/vulkano-taskgraph" }
-vulkano-shaders = { path = "../vulkano/vulkano-shaders" }
-bytemuck = { version = "1.14", features = ["derive"] }
+vulkano = { git = "https://github.com/vulkano-rs/vulkano", rev = "bf5ce28" }
+vulkano-taskgraph = { git = "https://github.com/vulkano-rs/vulkano", rev = "bf5ce28" }
+vulkano-shaders = { git = "https://github.com/vulkano-rs/vulkano", rev = "bf5ce28" }
+bytemuck = { version = "1.25", features = ["derive"] }
 imgui-winit-support = "0.13.0"
 winit = "0.30"
 

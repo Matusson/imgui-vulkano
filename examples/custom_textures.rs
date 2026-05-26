@@ -100,7 +100,7 @@ impl CustomTexturesApp {
             )?;
 
             // Wait for the flight before using it
-            resources.flight(flight_id).unwrap().wait(None).unwrap();
+            resources.flight(flight_id).wait(None).unwrap();
 
             // Upload texture data using taskgraph::execute
             unsafe {
@@ -110,7 +110,7 @@ impl CustomTexturesApp {
                     flight_id,
                     |cbf, tcx| {
                         // Write data to staging buffer
-                        tcx.write_buffer::<[u8]>(staging_buffer_id, ..)?
+                        tcx.write_buffer::<[u8]>(staging_buffer_id, ..)
                             .copy_from_slice(&data);
 
                         // Copy staging buffer to image
@@ -130,8 +130,7 @@ impl CustomTexturesApp {
                                 ..Default::default()
                             }],
                             ..CopyBufferToImageInfo::new()
-                        })
-                        .unwrap();
+                        });
 
                         Ok(())
                     },
@@ -143,7 +142,7 @@ impl CustomTexturesApp {
             }
 
             // Get the image handle from Resources
-            let image = resources.image(image_id).unwrap().image().clone();
+            let image = resources.image(image_id).image().clone();
 
             // Create view and sampler
             let image_view = ImageView::new_default(&image)?;
@@ -241,7 +240,7 @@ impl TestTexture {
         )?;
 
         // Wait for the flight before using it
-        resources.flight(flight_id).unwrap().wait(None).unwrap();
+        resources.flight(flight_id).wait(None).unwrap();
 
         // Upload texture dat
         unsafe {
@@ -251,7 +250,7 @@ impl TestTexture {
                 flight_id,
                 |cbf, tcx| {
                     // Write data to staging buffer
-                    tcx.write_buffer::<[u8]>(staging_buffer_id, ..)?
+                    tcx.write_buffer::<[u8]>(staging_buffer_id, ..)
                         .copy_from_slice(&image_data);
 
                     // Copy staging buffer to image
@@ -271,8 +270,7 @@ impl TestTexture {
                             ..Default::default()
                         }],
                         ..CopyBufferToImageInfo::new()
-                    })
-                    .unwrap();
+                    });
 
                     Ok(())
                 },
@@ -284,7 +282,7 @@ impl TestTexture {
         }
 
         // Get the image handle
-        let image = resources.image(image_id).unwrap().image().clone();
+        let image = resources.image(image_id).image().clone();
 
         // Create view and sampler
         let image_view = ImageView::new_default(&image)?;
@@ -559,7 +557,7 @@ impl App {
         }
 
         // Wait for the previous frame to finish before starting a new one
-        let flight = self.resources.flight(self.flight_id).unwrap();
+        let flight = self.resources.flight(self.flight_id);
         flight.wait(None).unwrap();
 
         let rcx = self.render_context.as_ref().unwrap();

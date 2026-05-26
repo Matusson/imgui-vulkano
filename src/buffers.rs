@@ -133,25 +133,21 @@ impl ImguiBuffers {
             unsafe {
                 resources
                     .buffer(vertex_buffer_id)
-                    .unwrap()
                     .buffer()
                     .set_debug_utils_object_name(Some("ImGui Vertex Buffer"))
                     .unwrap();
                 resources
                     .buffer(index_buffer_id)
-                    .unwrap()
                     .buffer()
                     .set_debug_utils_object_name(Some("ImGui Index Buffer"))
                     .unwrap();
                 resources
                     .buffer(vertex_staging_id)
-                    .unwrap()
                     .buffer()
                     .set_debug_utils_object_name(Some("ImGui Vertex Staging Buffer"))
                     .unwrap();
                 resources
                     .buffer(index_staging_id)
-                    .unwrap()
                     .buffer()
                     .set_debug_utils_object_name(Some("ImGui Index Staging Buffer"))
                     .unwrap();
@@ -298,11 +294,13 @@ impl ImguiTaskNodes {
         let bindless_context = resources.bindless_context()
             .ok_or("Resources should have bindless context")?;
 
-        draw_task_node
-            .task_mut()
-            .downcast_mut::<ImguiDrawTask<T>>()
-            .ok_or("Failed to downcast to ImguiDrawTask")?
-            .setup_after_compile(subpass, bindless_context, context)?;
+        unsafe {
+            draw_task_node
+                .task_mut()
+                .downcast_mut::<ImguiDrawTask<T>>()
+                .ok_or("Failed to downcast to ImguiDrawTask")?
+                .setup_after_compile(subpass, bindless_context, context)?;
+        }
 
         Ok(())
     }

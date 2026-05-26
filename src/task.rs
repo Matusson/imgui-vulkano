@@ -250,8 +250,8 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiUploadTask<W> {
         let vertex_byte_size = all_vertices.len() as u64 * size_of::<Vertex>() as u64;
         let index_byte_size = all_indices.len() as u64 * size_of::<u16>() as u64;
 
-        let vertex_buffer_size = _tcx.buffer(self.v_vertex_buffer)?.buffer().size();
-        let index_buffer_size = _tcx.buffer(self.v_index_buffer)?.buffer().size();
+        let vertex_buffer_size = _tcx.buffer(self.v_vertex_buffer).buffer().size();
+        let index_buffer_size = _tcx.buffer(self.v_index_buffer).buffer().size();
 
         if vertex_byte_size > vertex_buffer_size {
             panic!(
@@ -274,7 +274,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiUploadTask<W> {
             // Write to staging buffer
             let vertex_size = size_of::<Vertex>() as u64;
             let vertex_byte_len = all_vertices.len() as u64 * vertex_size;
-            _tcx.write_buffer::<[Vertex]>(self.v_vertex_staging, 0..vertex_byte_len)?
+            _tcx.write_buffer::<[Vertex]>(self.v_vertex_staging, 0..vertex_byte_len)
                 .copy_from_slice(&all_vertices);
 
             // Copy from staging to device buffer
@@ -283,7 +283,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiUploadTask<W> {
                     src_buffer: self.v_vertex_staging,
                     dst_buffer: self.v_vertex_buffer,
                     ..Default::default()
-                })?;
+                });
             }
         }
 
@@ -291,7 +291,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiUploadTask<W> {
             // Write to staging buffer
             let index_size = std::mem::size_of::<u16>() as u64;
             let index_byte_len = all_indices.len() as u64 * index_size;
-            _tcx.write_buffer::<[u16]>(self.v_index_staging, 0..index_byte_len)?
+            _tcx.write_buffer::<[u16]>(self.v_index_staging, 0..index_byte_len)
                 .copy_from_slice(&all_indices);
 
             // Copy from staging to device buffer
@@ -300,7 +300,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiUploadTask<W> {
                     src_buffer: self.v_index_staging,
                     dst_buffer: self.v_index_buffer,
                     ..Default::default()
-                })?;
+                });
             }
         }
 
@@ -360,9 +360,9 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
 
         // Bind pipeline and buffers
         unsafe {
-            cbf.bind_pipeline_graphics(&pipeline)?
-                .bind_vertex_buffers(0, &[self.v_vertex_buffer], &[0], &[], &[])?
-                .bind_index_buffer(self.v_index_buffer, 0, None, vulkano::buffer::IndexType::U16)?;
+            cbf.bind_pipeline_graphics(&pipeline)
+                .bind_vertex_buffers(0, &[self.v_vertex_buffer], &[0], &[], &[])
+                .bind_index_buffer(self.v_index_buffer, 0, None, vulkano::buffer::IndexType::U16);
         }
 
         // Setup viewport
@@ -373,7 +373,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
             max_depth: 1.0,
         };
 
-        cbf.set_viewport(0, &[viewport])?;
+        cbf.set_viewport(0, &[viewport]);
 
         // Setup orthographic projection
         let matrix = [
@@ -399,7 +399,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
                     pipeline.layout(),
                     0,
                     &push_constants,
-                )?;
+                );
 
                 // Set scissor
                 let clip_rect = cmd.clip_rect;
@@ -414,7 +414,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
                     ],
                 };
 
-                cbf.set_scissor(0, &[scissor])?;
+                cbf.set_scissor(0, &[scissor]);
 
                 cbf.draw_indexed(
                     cmd.count as u32,
@@ -422,7 +422,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
                     (idx_offset + cmd.idx_offset) as u32,
                     (vtx_offset + cmd.vtx_offset) as i32,
                     0,
-                )?;
+                );
             }
         }
 
@@ -432,7 +432,7 @@ impl<W: HasImguiContext + Send + Sync + 'static> Task for ImguiDrawTask<W> {
 
 /// Setup implementation for the draw task (called after graph compilation).
 impl<W: HasImguiContext> ImguiDrawTask<W> {
-    pub fn setup_after_compile(
+    pub unsafe fn setup_after_compile(
         &mut self,
         subpass: Arc<Subpass>,
         bindless_context: &vulkano_taskgraph::descriptor_set::BindlessContext,
